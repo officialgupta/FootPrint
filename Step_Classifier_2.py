@@ -28,7 +28,7 @@ def Pitch(signal):
     frequency = round(len(index) *RATE /(2*np.prod(len(signal))))
 
 
-    p = np.log10(np.abs(np.fft.rfft(signal)))
+    p = np.log10(np.abs(np.fft.rfft(signal))) #possibly radians? Check units, esp log10?
     f = np.linspace(0, RATE/2.0, len(p))
     plt.clf()
     plt.axis([0,2049,0,10])
