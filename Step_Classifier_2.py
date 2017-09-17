@@ -1,7 +1,9 @@
 # IMPORTS
 from matplotlib.mlab import find
+import matplotlib.pyplot as plt
 import numpy as np
 import math, wave, pyaudio
+
 
 CHUNK = 2048
 FORMAT = pyaudio.paInt16
@@ -17,11 +19,21 @@ PEOPLE = {
  }
 
 
+plt.ion()
+
 def Pitch(signal):
     signal = np.fromstring(signal, 'Int16')
     crossing = [math.copysign(1.0, s) for s in signal]
     index = find(np.diff(crossing)) # difference of adjacent numbers
     frequency = round(len(index) *RATE /(2*np.prod(len(signal))))
+
+
+    p = np.log10(np.abs(np.fft.rfft(signal)))
+    f = np.linspace(0, RATE/2.0, len(p))
+    plt.clf()
+    plt.axis([0,2049,0,10])
+    plt.plot(p)
+    plt.pause(0.0001)
 
     return frequency
 
@@ -35,15 +47,16 @@ stream = p.open(format = FORMAT,
                 frames_per_buffer = CHUNK)
 
 def Identify(data):
+
     FREQ = Pitch(data)
 
     for key in PEOPLE:
         if PEOPLE[key]*(1 - percent) <= FREQ <= PEOPLE[key]*(1 + percent):
             print "This is %s walking" % key
-        else:
-            print FREQ
+   
 
 
-for i in range(0, RATE/ CHUNK * 10):
+#for i in range(0, RATE/ CHUNK * 30):
+while True:
     data = stream.read(CHUNK)
     Identify(data)
